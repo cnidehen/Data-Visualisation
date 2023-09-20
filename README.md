@@ -1,7 +1,7 @@
 Contributors:
-    Clinton Idehen
-    Paula Beckett
-    Joey Zheng
+    Clinton Idehen,
+    Paula Beckett,
+    Joey Zheng,
     Simon Gomes
 
 ### Objective: 
