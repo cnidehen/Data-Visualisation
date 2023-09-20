@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>scatterplot matrix</title>
+</head> 
+<body>
+    <div id="main" style="width: 95vw;height:1000px;"></div>
+    <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+    <script src="https://cdn.bootcss.com/d3/5.9.2/d3.min.js"></script>
+    <script src="./js/sdjz.js"></script>
+    <script>
+        window.onload=function(){
+            var i=0;
+            var csvLength=500;
+            var data_list=[];
+            var date_list=[];
+            d3.csv("all_fire_sept19_to_dec19.csv",function(csvdata){  
+                i++;
+                if(i<csvLength){
+                    data_list.push([
+                        csvdata.latitude,
+                        csvdata.longitude,
+                        csvdata.bright_ti5,
+                        csvdata.acq_time,
+                        csvdata.bright_ti4,
+                        csvdata.frp,
+                        csvdata.confidence,
+                    ]);
+                    date_list.push( csvdata.confidence);
+                }else if(i==csvLength){
+                    plotScatterMatrix(data_list,getDate(date_list));
+                }
+            });  
+        }
+
+    </script>
+</body>
+</html>

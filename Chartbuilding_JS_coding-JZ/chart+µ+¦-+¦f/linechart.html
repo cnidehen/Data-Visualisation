@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Line chart</title>
+  </head>
+  <style>
+   .mainBox{
+    height: 85vh;
+   }
+   h1{
+    text-align: center;
+   }
+  </style>
+  
+  <body>
+    <h1>Line chart</h1>
+    <div class="mainBox">
+      <canvas id="myChart"></canvas>
+    </div>
+  </body>
+  <script src="https://cdn.bootcss.com/d3/5.9.2/d3.min.js"></script>
+  <script src="https://cdn.staticfile.org/Chart.js/3.9.1/chart.js"></script>
+
+  <script>
+    window.onload=function(){
+        var i=0;
+        var csvLength=1000;
+        var data_list=[];
+        var date_list=[];
+       
+        d3.csv("all_fire_sept19_to_dec19.csv",function(csvdata){  
+            i++;
+            if(i<csvLength){
+              data_list.push(csvdata);
+              date_list.push(csvdata.acq_date);
+            }else if(i==csvLength){
+              var data_sort_list=data_list.sort(dateData('acq_date',true));
+              create_line_chart(getDate(date_list),data_sort_list);
+            }
+        });  
+    }
+
+
+
+    function dateData(property, bol) {
+      return function(a, b) {
+        var value1 = a[property];
+        var value2 = b[property];
+        if (bol) {
+          // 升序
+          return Date.parse(value1) - Date.parse(value2);
+        } else {
+          // 降序
+          return Date.parse(value2) - Date.parse(value1)
+        }
+      }
+    }
+
+    
+    function getDate(data) {
+        var map = {};
+        var sort_vaule=[];
+        var return_dates={};
+        for (i = 0; i < data.length; i++) {
+            var key = data[i]
+            if (map[key]) {
+                map[key] += 1
+            } else {
+                map[key] = 1
+            }
+        }
+        let keysSorted = Object.keys(map).sort();
+        return keysSorted;
+    }
+
+    function create_line_chart(labels,date){
+      var scanList=[];
+      var trackList=[];
+      var typeList=[];
+      var bright_ti4List=[];
+      var bright_ti5List=[];
+      var frpList=[];
+
+      date.forEach(element=>{
+        scanList.push(element.scan);
+        trackList.push(element.track);
+        typeList.push(element.type);
+        bright_ti4List.push(element.bright_ti4);
+        bright_ti5List.push(element.bright_ti5);
+        frpList.push(element.frp);
+
+      })
+      var ctx = document.getElementById('myChart');
+       const data = {
+       labels: labels,
+       datasets: [{
+            label: 'scan',
+            data: scanList,
+            fill: true,
+            backgroundColor:'#faebd700',
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+        },
+        {
+            label: 'track',
+            data: trackList,
+            fill: true,
+            borderColor: 'rgb(175, 92, 92)',
+            tension: 0,
+            backgroundColor:'#faebd700',
+            showLine:true
+        },
+        {
+            label: 'type',
+            data: typeList,
+            fill: true,
+            borderColor: 'rgb(175, 30, 92)',
+            tension: 0,
+            backgroundColor:'#faebd700',
+            showLine:true
+        },
+        {
+            label: 'bright_ti4',
+            data: bright_ti4List,
+            fill: true,
+            borderColor: 'rgb(21, 22, 92)',
+            tension: 0,
+            backgroundColor:'#faebd700',
+            showLine:true
+        },
+        {
+            label: 'bright_ti5',
+            data: bright_ti5List,
+            fill: true,
+            borderColor: 'yellow',
+            tension: 0,
+            backgroundColor:'#faebd700',
+            showLine:true
+        },
+        {
+            label: 'frp',
+            data: frpList,
+            fill: true,
+            borderColor: 'black',
+            tension: 0,
+            backgroundColor:'#faebd700',
+            showLine:true
+        },
+      ]
+       };
+       
+       var lineChart = new Chart(ctx, {
+           type: 'line',
+           data: data,
+           options: {
+                responsive: true,
+                maintainAspectRatio: false,
+            },
+      });
+    }
+
+</script>
+  
+</html>

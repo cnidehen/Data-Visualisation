@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thermal map</title>
+  </head>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      position: relative;
+    }
+    .tips {
+      position: absolute;
+      padding: 10px;
+      border: 1px solid #fff;
+      border-radius: 4px;
+      text-align: center;
+      line-height: 30px;
+      box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.3);
+      background-color: red;
+      left: 30px;
+      display: none;
+    }
+    .icon {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background-color: red;
+      transform: rotate(45deg);
+      border-left: 1px solid #fff;
+      border-bottom: 1px solid #fff;
+      display: none;
+    }
+    .show {
+      display: block;
+    }
+  </style>
+  
+  <body>
+    <div class="tips"></div>
+    <div class="icon"></div>
+  </body>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    window.onload=function(){
+      var i=0;
+      var csvLength=50;
+      var data_list=[];
+      var data2_list=[];
+      var latitude_list=[];
+      var longitude_list=[];
+      var bright_ti4_list=[];
+      var bright_ti5_list=[];
+      d3.csv("all_fire_sept19_to_dec19.csv",function(csvdata){  
+        i++;
+        if(i<csvLength){
+          data_list.push({
+            x:csvdata.latitude,
+            y:csvdata.longitude,
+            value:csvdata.frp
+          });
+          data2_list.push({
+            x:csvdata.bright_ti4,
+            y:csvdata.bright_ti5,
+            value:csvdata.frp
+          })
+          latitude_list.push(csvdata.latitude);
+          longitude_list.push(csvdata.longitude);
+          bright_ti4_list.push(csvdata.bright_ti4);
+          bright_ti5_list.push(csvdata.bright_ti5);
+        }else if(i==csvLength){
+          
+            var result = [];
+            latitude_list.forEach(function(lade){
+                longitude_list.forEach(function(long){
+                    var value=0;
+                    data_list.forEach(function(data){
+                        if(data.x==lade && data.y==long){
+                            value=data.value;                       
+                        }
+                    })
+                    result.push({ y: long, x: lade,value:value});    
+                });
+            });
+
+            
+            var result2=[];
+            bright_ti4_list.forEach(function(bt4){
+              bright_ti5_list.forEach(function(bt5){
+                    var value=0;
+                    data2_list.forEach(function(data){
+                        if(data.x==bt4 && data.y==bt5){
+                            value=data.value;                       
+                        }
+                    })
+                    result2.push({ y: bt4, x: bt5,value:value});    
+                });
+            });
+
+           plotCorrelationMatrix(result,0,"latitude","longitude");
+           plotCorrelationMatrix(result2,1,"bright_ti4","bright_ti5");
+        }
+      });     
+    }
+
+
+    function plotCorrelationMatrix(data,Ynum,str1,str2){
+      const width = 1200;
+      const height = 600;
+  
+      const margin = {
+        top: 30,
+        bottom: 100,
+        left: 50,
+        right: 100,
+      };
+  
+      const innerWidth = width - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
+  
+      const svg = d3
+        .select("body")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+  
+      const xAxis = [...new Set(data.map((d) => d.x))];
+      const yAxis = [...new Set(data.map((d) => d.y))];
+      const zAxis = [d3.max(data, (x) => x.value), d3.min(data, (x) => x.value)];
+      // x轴 => 宽度映射
+      const xScale = d3.scaleBand().domain(xAxis).range([0, innerWidth]);
+      // y轴 => 高度映射
+      const yScale = d3.scaleBand().domain(yAxis).range([0, innerHeight]);
+      // 侧轴值 => 色卡宽度映射
+      const zScale = d3.scaleLinear().domain(zAxis).range([0, 250]);
+      // 值 => 颜色映射
+      const colorScale = d3
+        .scaleLinear()
+        .domain([d3.min(data, (d) => d.value), d3.max(data, (d) => d.value)])
+        .range(["#f9d2d2", "#f40c0c"]);
+        
+      const xWidth = xScale.bandwidth();
+      const yHeight = yScale.bandwidth();
+  
+      const group = svg.append("g").attr("transform", "translate(50,50)");
+  
+      // 添加柱状图
+      group
+        .selectAll("rect")
+        .data(data)
+        .join("rect")
+        .attr("width", xWidth)
+        .attr("height", yHeight)
+        .attr("fill", "none")
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 1)
+        .attr("x", (d) => xScale(d.x))
+        .attr("y", (d) => yScale(d.y))
+        .attr("fill", (d) => colorScale(d.value))
+        // hover效果
+        .on("mousemove", function (event, data) {
+          const color = d3.select(this).attr("fill");
+          d3.select(".tips")
+            .attr("class", "tips show")
+            .html(`${str1}:${data.x},&nbsp;${str2}:${data.y}<br/>frp:${data.value}`)
+            .style("left", `${event.offsetX + 20}px`)
+            .style("top", `${event.offsetY+(600*Ynum) - 10}px`)
+            .style("background", color);
+  
+          d3.select(".icon")
+            .attr("class", "icon show")
+            .style("left", `${event.offsetX + 16}px`)
+            .style("top", `${event.offsetY+(600*Ynum) + 2}px`)
+            .style("background", color);
+        })
+        .on("mouseout", function () {
+          d3.select(".tips").attr("class", "tips");
+          d3.select(".icon").attr("class", "icon");
+        });
+  
+      // x轴坐标轴
+      svg
+        .append("g")
+        .attr("transform", "translate(80,545)")
+        .selectAll("text")
+        .data(xAxis)
+        .join("text")
+        .text((d) => d)
+        .attr("fill", "#666")
+        .attr("x", (d) => xScale(d))
+        .attr("font-size", "12px")
+        .attr("text-anchor", "middle");
+  
+      // y轴坐标轴
+      svg
+        .append("g")
+        .attr("transform", "translate(25,90)")
+        .selectAll("text")
+        .data(yAxis)
+        .join("text")
+        .text((d) => d)
+        .attr("fill", "#666")
+        .attr("y", (d) => yScale(d))
+        .attr("font-size", "12px")
+        .attr("text-anchor", "middle");
+  
+      const linearGroup = svg.append("g");
+  
+      const linearGradient = linearGroup
+        .append("defs")
+        .append("linearGradient")
+        .attr("id", "linear")
+        .attr("x1", "100%")
+        .attr("y2", "100%");
+  
+      linearGradient
+        .append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", "#f40c0c");
+        
+      linearGradient
+        .append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", "#f9d2d2");
+  
+      linearGroup
+        .append("rect")
+        .attr("width", 20)
+        .attr("height", 250)
+        .attr("fill", "url(#linear)")
+        .attr("x", 1170)
+        .attr("y", 180);
+  
+      const zAxisData = d3.axisRight(zScale);
+  
+      const zData = data.map((item) => zScale(item.value));
+  
+      svg.append("g").call(zAxisData).attr("transform", "translate(1170,180)");
+    }
+  </script>
+
+</html>

@@ -1,0 +1,57 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+    background-color: bisque;
+}
+
+.jumbotron {
+    background-color: #c94738;
+    color: #524645;
+}
+
+.well {
+    width: 300px;
+    background-color: #f29f96;
+    float: left;
+    margin-left: 20px;
+}
+
+.panel {
+    width: 300px;
+    background-color: #f29f96;
+    margin-left: 20px;
+}
+
+.panel-title {
+    background-color: #c94738;
+    color: #121110;
+}
+
+.panel-heading {
+    background-color: #c94738;
+    color: #121110;
+}
+
+.plot-container.plotly {
+    width: 1400px;
+    height: 800px;
+    position: relative;
+    left: 100px;
+}
+
+.main-svg {
+    width: 1000px;
+    height: 500px;
+    position: relative;
+    left: 100px;
+}
+
+#plot {
+    width: 1000px;
+    height: 500px;
+    position: relative;
+    left: 100px;
+}

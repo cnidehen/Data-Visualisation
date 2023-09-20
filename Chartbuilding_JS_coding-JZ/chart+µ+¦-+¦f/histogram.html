@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Histogram</title>
+  </head>
+  <style>
+    .mainBox{
+        height: 300px;
+        width: 44vw;
+        display: flex;
+        margin-top: 2vw;
+    }
+    .mainBox canvas{
+        margin-left: 2vw;
+    }
+  </style>
+  
+  <body>
+    <div class="mainBox">
+        <canvas id="myChart_scan"></canvas>
+        <canvas id="myChart_track" ></canvas>
+    </div>
+    <div class="mainBox">
+        <canvas id="myChart_acq_date"></canvas>
+        <canvas id="myChart_satellite" ></canvas>
+    </div>
+    <div class="mainBox">
+        <canvas id="myChart_daynight" ></canvas>
+        <canvas id="myChart_type" ></canvas>
+    </div>
+
+ 
+   </body>
+   <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script src="https://cdn.bootcss.com/d3/5.9.2/d3.min.js"></script>
+  <script src="https://cdn.staticfile.org/Chart.js/3.9.1/chart.js"></script>
+  <script>
+
+    $(function(){
+        const ctx_scan = document.getElementById('myChart_scan');
+        const ctx_track = document.getElementById('myChart_track');
+        const ctx_acq_date = document.getElementById('myChart_acq_date');
+        const ctx_satellite = document.getElementById('myChart_satellite');
+        const ctx_daynight = document.getElementById('myChart_daynight');
+        const ctx_type = document.getElementById('myChart_type');
+
+        var i=0;
+        var csvLength=254020;
+        var scanList=[];
+        var trackList=[];
+        var acq_dateList=[];
+        var satelliteList=[];
+        var daynightList=[];
+        var typeList=[];
+        d3.csv("all_fire_sept19_to_dec19.csv",function(csvdata){  
+            i++;
+            if(i<csvLength){
+                scanList.push(csvdata.scan);
+                trackList.push(csvdata.track);
+                acq_dateList.push(csvdata.acq_date);
+                satelliteList.push(csvdata.satellite);
+                daynightList.push(csvdata.daynight);
+                typeList.push(csvdata.type);
+            }else if(i==csvLength){
+               create_chart('scan(column 0)',ctx_scan,getEleNums(scanList));
+               create_chart('track(column 1)',ctx_track,getEleNums(trackList));
+               create_chart('acq_date(column 2)',ctx_acq_date,getEleNums(acq_dateList));
+               create_chart('satellite(column 3)',ctx_satellite,getEleNums(satelliteList));
+               create_chart('daynight(column 4)',ctx_daynight,getEleNums(daynightList));
+               create_chart('type(column 5)',ctx_type,getEleNums(typeList));
+            }
+        });  
+    })
+
+
+    function getEleNums(data) {
+        var map = {};
+        var sort_vaule=[];
+        var return_nums={};
+        for (i = 0; i < data.length; i++) {
+            var key = data[i]
+            if (map[key]) {
+                map[key] += 1
+            } else {
+                map[key] = 1
+            }
+        }
+        let keysSorted = Object.keys(map).sort();
+        for(let i=0;i<keysSorted.length;i++){
+            sort_vaule.push(map[keysSorted[i]]);
+        }
+        return_nums.label=keysSorted;
+        return_nums.data=sort_vaule;
+        return return_nums;
+    }
+
+    function create_chart(name,ctx,now_data){
+        const labels = now_data.label;
+        const data = {
+            labels: labels,
+            datasets: [{
+                label: name,
+                data: now_data.data,
+                backgroundColor: [      // 设置每个柱形图的背景颜色
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 205, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(201, 203, 207, 0.2)'
+                ],
+                borderColor: [     //设置每个柱形图边框线条颜色
+                'rgb(255, 99, 132)',
+                'rgb(255, 159, 64)',
+                'rgb(255, 205, 86)',
+                'rgb(75, 192, 192)',
+                'rgb(54, 162, 235)',
+                'rgb(153, 102, 255)',
+                'rgb(201, 203, 207)'
+                ],
+                borderWidth: 1     // 设置线条宽度
+            }]
+        };
+        const config = {
+            type: 'bar', // 设置图表类型
+            data: data,  // 设置数据集
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true // 设置 y 轴从 0 开始
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: false,
+
+            },
+        };
+        const myChart = new Chart(ctx, config);
+    }
+   
+  </script>
+</html>

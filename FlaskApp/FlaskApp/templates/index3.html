@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Australian Bushfires 2019</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <!-- Chart.js -->
+  <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.0/chart.umd.js"></script>
+  <!-- Our CSS -->
+  <link rel="stylesheet" type="text/css" href="/static/css/style.css">
+</head>
+
+<body>
+  <div>
+    <div class="row">
+      <div class="col-md-12 jumbotron text-center">
+        <h1>Australian Bushfires 2019</h1>
+        <p>Data from NASA Satellites</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2" >
+        <div class="well">
+          <h5>Date Selection:</h5>
+          <select id="selDataset" onchange="optionChanged(this.value)"></select>
+        </div>
+        <div class="panel panel-primary">
+          <div class="panel-heading" style="background-color: #c94738; color: #121110;">
+            <h3 class="panel-title"><Details></Details></h3>
+          </div>
+          <div id="sample-metadata" class="panel-body"></div>
+        </div>
+      </div>
+      <div class="col-md-5">
+        <div id="plot" ></div>
+      </div>
+    </div>
+  </div>
+  <!-- D3 JavaScript -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!-- Plotly JavaScript -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <!-- Our JavaScript -->
+  <script src="/static/js/demo.js"></script>
+</body>
+
+</html>
